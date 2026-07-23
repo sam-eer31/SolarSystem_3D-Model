@@ -3,7 +3,6 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF, useAnimations, Trail, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { OrbitLines } from './OrbitLines'
-import { globalModelCache } from './Loader'
 
 export type ViewerOptions = {
   showOrbits: boolean;
