@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, useGLTF, useAnimations, Trail, useTexture } from '@react-three/drei'
+import { OrbitControls, useGLTF, useAnimations, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 
 export type ViewerOptions = {
@@ -377,8 +377,6 @@ function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: str
   return (
     <group>
       <primitive object={scene} />
-      <CometTail scene={scene as THREE.Group} cometName="HalleysComet" options={options} />
-      <CometTail scene={scene as THREE.Group} cometName="Comet67P" options={options} />
       
       {INTERACTIVE_BODIES.map(name => (
         <InteractiveBody 
@@ -395,73 +393,7 @@ function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: str
   )
 }
 
-function CometTail({ scene, cometName, options }: { scene: THREE.Group, cometName: string, options: ViewerOptions }) {
-  const cometMeshRef = useRef<THREE.Object3D | null>(null)
-  const targetRef = useRef<any>(null)
-  const [ready, setReady] = useState(false)
-  const prevPosRef = useRef<THREE.Vector3>(new THREE.Vector3())
-  const [canRender, setCanRender] = useState(true)
-  
-  useEffect(() => {
-    scene.traverse((node) => {
-      if (node.name === cometName) {
-        cometMeshRef.current = node
-        setReady(true)
-      }
-    })
-  }, [scene, cometName])
-  
-  useFrame(() => {
-    if (cometMeshRef.current && targetRef.current) {
-      // Force matrix update to ensure we get exact animation position
-      cometMeshRef.current.updateMatrixWorld(true)
-      const pos = new THREE.Vector3()
-      cometMeshRef.current.getWorldPosition(pos)
-      
-      // Update proxy target instantly so Trail always reads correct position
-      targetRef.current.position.copy(pos)
-      
-      if (prevPosRef.current.lengthSq() > 0) {
-        const dist = pos.distanceTo(prevPosRef.current)
-        if (dist > 20.0) {
-          // Teleportation jump detected! Hide trail temporarily to prevent cross-system line
-          setCanRender(false)
-        } else if (!canRender) {
-          setCanRender(true)
-        }
-      }
-      
-      prevPosRef.current.copy(pos)
-    }
-  })
-  
-  if (!ready) return null;
-  
-  // Calculate dynamic tail masking instead of resizing buffer
-  const maxFrames = 150;
-  const tailFrames = Math.min(maxFrames, Math.max(3, Math.floor(maxFrames / Math.max(0.01, options.animationSpeed))));
-  const visibleRatio = tailFrames / maxFrames;
-  const threshold = 1.0 - visibleRatio;
 
-  return (
-    <>
-      <group ref={targetRef} />
-      {options.showComets && options.showOrbits && canRender && (
-        <Trail
-          width={1.5}
-          length={maxFrames} 
-          color={new THREE.Color('#88ccff')}
-          attenuation={(t) => {
-            if (t <= threshold) return 0;
-            const normalizedT = (t - threshold) / (1.0 - threshold);
-            return normalizedT * normalizedT;
-          }} 
-          target={targetRef}
-        />
-      )}
-    </>
-  )
-}
 
 export function SolarSystemViewer({ url, onModelReady, realisticLighting, options, selectedBody, flightTrigger, onSelectBody }: ViewerProps) {
   return (
