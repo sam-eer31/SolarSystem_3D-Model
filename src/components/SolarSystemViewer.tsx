@@ -102,8 +102,9 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
           
           controlsRef.current.target.lerp(targetVec, 4.0 * delta);
           
-          let safeDist = BODY_RADII[selectedBody] ? Math.max(BODY_RADII[selectedBody] * 4.0, 0.05) : 10.0;
-          if (selectedBody === 'Sun') safeDist = 45.0;
+          let safeDist = BODY_RADII[selectedBody] ? Math.max(BODY_RADII[selectedBody] * 6.0, 0.4) : 10.0;
+          if (selectedBody === 'Sun') safeDist = 60.0;
+          if (selectedBody === 'Saturn') safeDist = 35.0; // Account for the massive ring system
           
           // Dynamically adjust distance based on screen aspect ratio
           // Base framing is optimized for 16:9 (1.77 aspect ratio)
