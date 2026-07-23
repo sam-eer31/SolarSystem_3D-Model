@@ -6,7 +6,7 @@
   **An interactive, highly realistic 3D Solar System experience.**
 
   [![Live Site](https://img.shields.io/badge/Live-Visit_Site-050508?style=for-the-badge&logo=vercel)](https://planetzero.vercel.app/)
-  [![3D Model](https://img.shields.io/badge/Download-3D_Model-4a90e2?style=for-the-badge&logo=threedotjs)](https://github.com/sam-eer31/SolarSystem_3D-Model/blob/main/public/solar_system_realistic.glb)
+  [![3D Model](https://img.shields.io/badge/Download-3D_Model-4a90e2?style=for-the-badge&logo=threedotjs)](https://github.com/sam-eer31/SolarSystem_3D-Model/releases)
 </div>
 
 
@@ -32,7 +32,7 @@ Experience PlanetZero right now: **[https://planetzero.vercel.app/](https://plan
 
 The massive, highly realistic 3D model used in this project is freely available for download. It is tracked using Git LFS due to its size.
 
-👉 **[Download the `solar_system_realistic.glb` model](https://github.com/sam-eer31/SolarSystem_3D-Model/raw/main/public/solar_system_realistic.glb)**
+👉 **[Download the `solar_system_realistic.glb` model from Releases](https://github.com/sam-eer31/SolarSystem_3D-Model/releases)**
 
 > **Note**: If you are cloning this repository, make sure you have [Git LFS](https://git-lfs.github.com/) installed so the model downloads correctly!
 
