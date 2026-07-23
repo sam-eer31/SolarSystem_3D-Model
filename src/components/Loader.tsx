@@ -91,9 +91,14 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
     };
   }, []); // Empty dependency array ensures it mounts only once
 
-  const displayString = displayProgress >= 100 && !modelReady 
-    ? "PARSING SYSTEM..." 
-    : `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
+  let displayString = `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
+  if (displayProgress >= 100) {
+    if (!modelReady) {
+      displayString = "PARSING SYSTEM...";
+    } else {
+      displayString = "SYSTEM READY...";
+    }
+  }
 
   return (
     <div className={`loader-container ${hidden ? 'hidden' : ''}`}>
