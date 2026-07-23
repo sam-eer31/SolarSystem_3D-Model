@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 
 export const globalModelCache = {
-  url: '/solar_system_realistic.glb?v=7'
+  url: '/solar_system_realistic.glb?v=8'
 };
 
 // Track preloading globally so React StrictMode or re-renders don't restart it
@@ -61,7 +61,7 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
     if (!isPreloading) {
       isPreloading = true;
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', '/solar_system_realistic.glb?v=6', true);
+      xhr.open('GET', '/solar_system_realistic.glb?v=8', true);
       xhr.responseType = 'blob';
 
       xhr.onprogress = (event) => {
