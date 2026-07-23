@@ -9,20 +9,36 @@ let isPreloading = false;
 let preloadedBlobUrl: string | null = null;
 let globalProgress = 0;
 
-export function Loader({ onLoaded }: { onLoaded?: () => void }) {
+export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloadComplete?: (url: string) => void, modelReady?: boolean, onLoaded?: () => void }) {
   const [displayProgress, setDisplayProgress] = useState(globalProgress);
   const [hidden, setHidden] = useState(false);
   const onLoadedRef = useRef(onLoaded);
+  const onDownloadCompleteRef = useRef(onDownloadComplete);
+  const [isDone, setIsDone] = useState(false);
 
   useEffect(() => {
     onLoadedRef.current = onLoaded;
   }, [onLoaded]);
 
   useEffect(() => {
+    onDownloadCompleteRef.current = onDownloadComplete;
+  }, [onDownloadComplete]);
+
+  // Handle final fade out when BOTH visual progress is 100 AND model is fully parsed/ready
+  useEffect(() => {
+    if (modelReady && displayProgress >= 100 && !isDone) {
+      setIsDone(true);
+      setTimeout(() => {
+        setHidden(true);
+        if (onLoadedRef.current) onLoadedRef.current();
+      }, 600);
+    }
+  }, [modelReady, displayProgress, isDone]);
+
+  useEffect(() => {
     if (preloadedBlobUrl) {
       setDisplayProgress(100);
-      setHidden(true);
-      if (onLoadedRef.current) onLoadedRef.current();
+      if (onDownloadCompleteRef.current) onDownloadCompleteRef.current(preloadedBlobUrl);
       return;
     }
 
@@ -37,12 +53,6 @@ export function Loader({ onLoaded }: { onLoaded?: () => void }) {
       setDisplayProgress(currentProgress);
       if (currentProgress < 100) {
         animationFrameId = requestAnimationFrame(smoothAnimate);
-      } else {
-        // Visual bar has caught up to 100%
-        setTimeout(() => {
-          setHidden(true);
-          if (onLoadedRef.current) onLoadedRef.current();
-        }, 600);
       }
     };
     
@@ -64,6 +74,7 @@ export function Loader({ onLoaded }: { onLoaded?: () => void }) {
         if (xhr.status === 200 || xhr.status === 304) {
           preloadedBlobUrl = URL.createObjectURL(xhr.response);
           globalModelCache.url = preloadedBlobUrl;
+          if (onDownloadCompleteRef.current) onDownloadCompleteRef.current(preloadedBlobUrl);
         }
         globalProgress = 100;
       };
@@ -80,6 +91,10 @@ export function Loader({ onLoaded }: { onLoaded?: () => void }) {
     };
   }, []); // Empty dependency array ensures it mounts only once
 
+  const displayString = displayProgress >= 100 && !modelReady 
+    ? "PARSING SYSTEM..." 
+    : `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
+
   return (
     <div className={`loader-container ${hidden ? 'hidden' : ''}`}>
       <img src="/logo-main.png" alt="PlanetZero" className="loader-logo" />
@@ -90,9 +105,10 @@ export function Loader({ onLoaded }: { onLoaded?: () => void }) {
         />
       </div>
       <div className="progress-text">
-        {Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED
+        {displayString}
       </div>
     </div>
   )
 }
+
 

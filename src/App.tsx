@@ -75,6 +75,8 @@ function App() {
   const [isPortrait, setIsPortrait] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [modelUrl, setModelUrl] = useState<string | null>(null);
+  const [modelReady, setModelReady] = useState(false);
 
   useEffect(() => {
     const checkState = () => {
@@ -213,7 +215,11 @@ function App() {
 
   return (
     <div className="app-container">
-      <Loader onLoaded={() => setIsLoaded(true)} />
+      <Loader 
+        onDownloadComplete={(url) => setModelUrl(url)}
+        modelReady={modelReady}
+        onLoaded={() => setIsLoaded(true)} 
+      />
       
       {isLoaded && isMobile && isPortrait && (
         <div className="orientation-warning">
@@ -311,6 +317,8 @@ function App() {
 
 
       <SolarSystemViewer 
+        url={modelUrl}
+        onModelReady={() => setModelReady(true)}
         realisticLighting={realisticLighting} 
         options={options} 
         selectedBody={selectedBody}

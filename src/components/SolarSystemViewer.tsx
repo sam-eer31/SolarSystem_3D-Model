@@ -16,6 +16,8 @@ export type ViewerOptions = {
 };
 
 export type ViewerProps = {
+  url: string | null;
+  onModelReady: () => void;
   realisticLighting: boolean;
   options: ViewerOptions;
   selectedBody: string | null;
@@ -279,7 +281,7 @@ function InteractiveBody({ name, scene, hoveredBody, selectedBody, onSelect, onH
   )
 }
 
-function Model({ url, options, selectedBody, onSelectBody }: { url: string, options: ViewerOptions, selectedBody: string | null, onSelectBody: (b: string|null) => void }) {
+function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: string, options: ViewerOptions, selectedBody: string | null, onSelectBody: (b: string|null) => void, onReady: () => void }) {
   const { scene, animations } = useGLTF(url)
   const { actions, mixer } = useAnimations(animations, scene)
   const [hoveredBody, setHoveredBody] = useState<string | null>(null)
@@ -298,7 +300,14 @@ function Model({ url, options, selectedBody, onSelectBody }: { url: string, opti
         node.raycast = () => null;
       }
     });
-  }, [scene, actions])
+
+    // Notify parent that the model has mounted and is parsing/rendering
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        onReady();
+      });
+    });
+  }, [scene, actions, onReady])
   
   useEffect(() => {
     if (mixer) {
@@ -462,7 +471,7 @@ export function SolarSystemViewer({ realisticLighting, options, selectedBody, fl
       <Suspense fallback={null}>
         <SpaceBackground onSelectBody={onSelectBody} />
         
-        <Model url={globalModelCache.url} options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} />
+        {url && <Model url={url} options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} onReady={onModelReady} />}
       </Suspense>
 
       <CameraTracker selectedBody={selectedBody} flightTrigger={flightTrigger} />
