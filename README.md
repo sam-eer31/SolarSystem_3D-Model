@@ -21,7 +21,6 @@ Built with React and Three.js, PlanetZero uses real orbit data to visualize our 
 - **Interactive 3D Environment**: Orbit, pan, and zoom around the solar system.
 - **High-Fidelity Models**: Features a massive highly detailed GLB model of the solar system.
 - **Responsive UI**: A sleek, dark-themed, glassmorphic interface that looks amazing on any device.
-- **Accurate Scales (Optional)**: Dynamic toggles to switch between realistic and exaggerated planetary scales for better viewing.
 - **Planet Tracking**: Focus on individual planets to explore them closely.
 
 ## 🚀 Live Demo
@@ -32,7 +31,7 @@ Experience PlanetZero right now: **[https://planetzero.vercel.app/](https://plan
 
 The massive, highly realistic 3D model used in this project is freely available for download. It is tracked using Git LFS due to its size.
 
-👉 **[Download the `solar_system_realistic.glb` model from Releases](https://github.com/sam-eer31/SolarSystem_3D-Model/releases)**
+👉 **[Download the `solar_system.glb` model from Releases](https://github.com/sam-eer31/SolarSystem_3D-Model/releases)**
 
 > **Note**: If you are cloning this repository, make sure you have [Git LFS](https://git-lfs.github.com/) installed so the model downloads correctly!
 
