@@ -60,7 +60,8 @@ function OrbitLine({ orbit }: { orbit: OrbitData }) {
     }
   });
 
+  const LineComponent = 'line' as any;
   return (
-    <line ref={ref} geometry={geometry} material={material} renderOrder={-1} />
+    <LineComponent ref={ref} geometry={geometry} material={material} renderOrder={-1} />
   );
 }
