@@ -1,32 +1,70 @@
-# React + TypeScript + Vite
+<div align="center">
+  <img src="public/logo.png" alt="PlanetZero Logo" width="200" />
+  
+  # PlanetZero
+  
+  **An interactive, highly realistic 3D Solar System experience.**
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+  [![Live Site](https://img.shields.io/badge/Live-Visit_Site-050508?style=for-the-badge&logo=vercel)](https://planetzero.vercel.app/)
+  [![3D Model](https://img.shields.io/badge/Download-3D_Model-4a90e2?style=for-the-badge&logo=threedotjs)](https://github.com/sam-eer31/SolarSystem_3D-Model/blob/main/public/solar_system_realistic.glb)
+</div>
 
-Currently, two official plugins are available:
+<br />
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🪐 About PlanetZero
 
-## React Compiler
+**PlanetZero** is a modern, high-performance web application that brings the solar system right to your browser. Explore the planets with stunning 3D graphics, smooth animations, and a premium interactive interface.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Built with React and Three.js, PlanetZero uses real orbit data to visualize our cosmic neighborhood with incredible detail.
 
-## Expanding the Oxlint configuration
+## ✨ Features
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- **Interactive 3D Environment**: Orbit, pan, and zoom around the solar system.
+- **High-Fidelity Models**: Features a massive ~100MB highly detailed GLB model of the solar system.
+- **Responsive UI**: A sleek, dark-themed, glassmorphic interface that looks amazing on any device.
+- **Accurate Scales (Optional)**: Dynamic toggles to switch between realistic and exaggerated planetary scales for better viewing.
+- **Planet Tracking**: Focus on individual planets to explore them closely.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+## 🚀 Live Demo
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Experience PlanetZero right now: **[https://planetzero.vercel.app/](https://planetzero.vercel.app/)**
+
+## 📦 Download the 3D Model
+
+The massive, highly realistic 3D model used in this project is freely available for download. It is tracked using Git LFS due to its size.
+
+👉 **[Download the `solar_system_realistic.glb` model (~100MB)](https://github.com/sam-eer31/SolarSystem_3D-Model/raw/main/public/solar_system_realistic.glb)**
+
+> **Note**: If you are cloning this repository, make sure you have [Git LFS](https://git-lfs.github.com/) installed so the model downloads correctly!
+
+## 💻 Tech Stack
+
+- **Framework**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **3D Rendering**: [Three.js](https://threejs.org/) & [@react-three/fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)
+- **Styling**: Vanilla CSS (Custom Glassmorphism)
+- **Hosting**: [Vercel](https://vercel.com)
+
+## 🛠️ Local Development
+
+To run PlanetZero on your local machine:
+
+1. **Clone the repository** (make sure Git LFS is installed):
+   ```bash
+   git clone https://github.com/sam-eer31/SolarSystem_3D-Model.git
+   cd SolarSystem_3D-Model/webapp
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+
+---
+<div align="center">
+  <i>Crafted with ❤️ for the love of space and web development.</i>
+</div>
