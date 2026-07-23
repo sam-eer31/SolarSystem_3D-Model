@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF, useAnimations, Trail, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import { OrbitLines } from './OrbitLines'
+import { globalModelCache } from './Loader'
 
 export type ViewerOptions = {
   showOrbits: boolean;
@@ -461,7 +462,7 @@ export function SolarSystemViewer({ realisticLighting, options, selectedBody, fl
       <Suspense fallback={null}>
         <SpaceBackground onSelectBody={onSelectBody} />
         
-        <Model url="/solar_system_realistic.glb?v=6" options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} />
+        <Model url={globalModelCache.url} options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} />
       </Suspense>
 
       <CameraTracker selectedBody={selectedBody} flightTrigger={flightTrigger} />
@@ -469,5 +470,4 @@ export function SolarSystemViewer({ realisticLighting, options, selectedBody, fl
   )
 }
 
-// Preload the model so R3F starts fetching immediately
-useGLTF.preload('/solar_system_realistic.glb?v=6')
+
