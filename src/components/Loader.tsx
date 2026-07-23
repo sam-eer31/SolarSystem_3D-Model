@@ -15,17 +15,6 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   const onLoadedRef = useRef(onLoaded);
   const onDownloadCompleteRef = useRef(onDownloadComplete);
   const [isDone, setIsDone] = useState(false);
-  const [dots, setDots] = useState("");
-
-  // Cycle dots animation
-  useEffect(() => {
-    if (displayProgress >= 100 && !modelReady && !isDone) {
-      const interval = setInterval(() => {
-        setDots(prev => prev.length >= 3 ? "" : prev + ".");
-      }, 400);
-      return () => clearInterval(interval);
-    }
-  }, [displayProgress, modelReady, isDone]);
 
   useEffect(() => {
     onLoadedRef.current = onLoaded;
@@ -102,12 +91,19 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
     };
   }, []); // Empty dependency array ensures it mounts only once
 
-  let displayString = `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
+  let displayContent: React.ReactNode = `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
   if (displayProgress >= 100) {
     if (!modelReady) {
-      displayString = `PARSING SYSTEM${dots}`;
+      displayContent = (
+        <>
+          PARSING SYSTEM
+          <span className="loading-dots">
+            <span>.</span><span>.</span><span>.</span>
+          </span>
+        </>
+      );
     } else {
-      displayString = "SYSTEM READY...";
+      displayContent = "SYSTEM READY...";
     }
   }
 
@@ -121,10 +117,8 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
         />
       </div>
       <div className="progress-text">
-        {displayString}
+        {displayContent}
       </div>
     </div>
-  )
+  );
 }
-
-
