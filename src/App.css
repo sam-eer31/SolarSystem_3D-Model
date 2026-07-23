@@ -603,8 +603,8 @@
   background: rgba(20, 20, 30, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  overflow: hidden;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .jump-menu-container.open {
@@ -643,11 +643,21 @@
 }
 
 .jump-menu-dropdown {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 0;
+  width: 100%;
   max-height: 250px;
   overflow-y: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(20, 20, 30, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 144, 226, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  z-index: 100;
 }
 
 .jump-menu-dropdown::-webkit-scrollbar {

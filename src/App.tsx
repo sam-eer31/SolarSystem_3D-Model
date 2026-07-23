@@ -19,8 +19,8 @@ const TIME_PRESETS = [
 const JUMP_CATEGORIES = [
   { label: "Star", items: ["Sun"] },
   { label: "Planets", items: ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"] },
-  { label: "Dwarf Planets", items: ["Pluto", "Ceres", "Eris", "Haumea", "Makemake"] },
-  { label: "Moons", items: ["Moon", "Io", "Europa", "Ganymede", "Callisto", "Titan", "Enceladus", "Triton"] },
+  { label: "Dwarf Planets", items: ["Pluto", "Ceres", "Eris", "Haumea", "Makemake", "Sedna"] },
+  { label: "Moons", items: ["Moon", "Phobos", "Deimos", "Io", "Europa", "Ganymede", "Callisto", "Amalthea", "Himalia", "Titan", "Enceladus", "Triton", "Mimas", "Rhea", "Dione", "Tethys", "Iapetus", "Miranda", "Ariel", "Umbriel", "Titania", "Oberon", "Proteus", "Nereid", "Charon"] },
   { label: "Comets & Asteroids", items: ["HalleysComet", "Comet67P", "Vesta", "Pallas", "Hygiea"] }
 ];
 
@@ -30,7 +30,13 @@ function JumpMenu({ onSelect, currentBody }: { onSelect: (body: string) => void,
   return (
     <div className={`jump-menu-container ${isOpen ? 'open' : ''}`}>
       <button className="jump-menu-btn" onClick={() => setIsOpen(!isOpen)}>
-        <span>🚀 Jump to Destination...</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+          </svg>
+          Navigate To...
+        </span>
         <span className={`jump-arrow ${isOpen ? 'up' : 'down'}`}>▼</span>
       </button>
       

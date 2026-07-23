@@ -54,29 +54,39 @@ function SpaceBackground({ onSelectBody }: { onSelectBody: (body: string | null)
   )
 }
 
+const PARENTS: Record<string, string> = {
+  "Moon": "Earth",
+  "Phobos": "Mars", "Deimos": "Mars",
+  "Io": "Jupiter", "Europa": "Jupiter", "Ganymede": "Jupiter", "Callisto": "Jupiter", "Amalthea": "Jupiter", "Himalia": "Jupiter",
+  "Mimas": "Saturn", "Enceladus": "Saturn", "Tethys": "Saturn", "Dione": "Saturn", "Rhea": "Saturn", "Titan": "Saturn", "Iapetus": "Saturn",
+  "Miranda": "Uranus", "Ariel": "Uranus", "Umbriel": "Uranus", "Titania": "Uranus", "Oberon": "Uranus",
+  "Proteus": "Neptune", "Triton": "Neptune", "Nereid": "Neptune",
+  "Charon": "Pluto"
+};
+
 function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string | null, flightTrigger: number }) {
   const { scene, camera, size } = useThree()
   const controlsRef = useRef<any>(null)
   
   const targetVec = useMemo(() => new THREE.Vector3(), [])
   const prevTargetVec = useRef(new THREE.Vector3())
+  const prevParentVec = useRef<THREE.Vector3 | null>(null)
   const isTransitioning = useRef(false)
   const prevSelected = useRef(selectedBody)
   const prevFlightTrigger = useRef(flightTrigger)
 
   useEffect(() => {
-    
     if (selectedBody) {
       camera.setViewOffset(size.width, size.height, -(size.width * 0.25), 0, size.width, size.height);
     } else {
       camera.clearViewOffset();
     }
+    camera.updateProjectionMatrix();
   }, [selectedBody, camera, size])
 
   useFrame((_, delta) => {
     if (!controlsRef.current) return;
     
-    // Synchronous state check to prevent 1-frame race conditions
     if (selectedBody !== prevSelected.current || flightTrigger !== prevFlightTrigger.current) {
       isTransitioning.current = true;
       if (selectedBody) {
@@ -85,6 +95,7 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
       }
       prevSelected.current = selectedBody;
       prevFlightTrigger.current = flightTrigger;
+      prevParentVec.current = null;
     }
     
     if (selectedBody) {
@@ -92,11 +103,9 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
       if (node) {
         node.getWorldPosition(targetVec)
         
-        // Calculate instantaneous velocity of the planet
         const velocity = targetVec.clone().sub(prevTargetVec.current);
         
         if (isTransitioning.current) {
-          // Apply planetary velocity to camera so it stays in the planet's inertial frame during flight
           controlsRef.current.target.add(velocity);
           camera.position.add(velocity);
           
@@ -104,10 +113,8 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
           
           let safeDist = BODY_RADII[selectedBody] ? Math.max(BODY_RADII[selectedBody] * 6.0, 0.4) : 10.0;
           if (selectedBody === 'Sun') safeDist = 60.0;
-          if (selectedBody === 'Saturn') safeDist = 35.0; // Account for the massive ring system
+          if (selectedBody === 'Saturn') safeDist = 35.0; 
           
-          // Dynamically adjust distance based on screen aspect ratio
-          // Base framing is optimized for 16:9 (1.77 aspect ratio)
           const aspect = size.width / size.height;
           const fovAdjustment = Math.min(Math.max(1.77 / aspect, 0.6), 4.0);
           safeDist *= fovAdjustment;
@@ -118,8 +125,6 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
           currentOffset.lerp(idealOffset, 4.0 * delta);
           camera.position.copy(controlsRef.current.target).add(currentOffset);
           
-          // Wait for BOTH target and offset to arrive before locking
-          // Use dynamic thresholds so the camera doesn't abruptly stop transitioning on tiny moons
           const targetThreshold = Math.max(safeDist * 0.005, 0.005);
           const offsetThreshold = Math.max(safeDist * 0.01, 0.01);
           
@@ -127,9 +132,40 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
             isTransitioning.current = false;
           }
         } else {
-          // Hard lock tracking (pure translation, no orbital rotation mapping)
-          camera.position.add(velocity);
-          controlsRef.current.target.copy(targetVec);
+          // Orbital Tidal Lock tracking
+          let revolved = false;
+          const parentName = PARENTS[selectedBody] || (selectedBody === 'Sun' ? null : 'Sun');
+          
+          if (parentName) {
+            const parentNode = scene.getObjectByName(parentName);
+            if (parentNode) {
+              const parentPos = new THREE.Vector3();
+              parentNode.getWorldPosition(parentPos);
+              
+              if (prevParentVec.current) {
+                const R_prev = prevTargetVec.current.clone().sub(prevParentVec.current).normalize();
+                const R_curr = targetVec.clone().sub(parentPos).normalize();
+                
+                if (R_prev.lengthSq() > 0.1 && R_curr.lengthSq() > 0.1) {
+                  // Calculate the exact angular rotation of the orbit in this frame
+                  const q = new THREE.Quaternion().setFromUnitVectors(R_prev, R_curr);
+                  // Apply that exact rotation to the camera so the parent stays perfectly still in the background
+                  const offset = camera.position.clone().sub(prevTargetVec.current);
+                  offset.applyQuaternion(q);
+                  
+                  camera.position.copy(targetVec).add(offset);
+                  controlsRef.current.target.copy(targetVec);
+                  revolved = true;
+                }
+              }
+              prevParentVec.current = parentPos;
+            }
+          }
+          
+          if (!revolved) {
+            camera.position.add(velocity);
+            controlsRef.current.target.copy(targetVec);
+          }
         }
         
         prevTargetVec.current.copy(targetVec);
@@ -138,10 +174,13 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
       const defaultTarget = new THREE.Vector3(0, 0, 0);
       const defaultPos = new THREE.Vector3(0, 40, 150);
       
-      controlsRef.current.target.lerp(defaultTarget, 2.0 * delta);
-      camera.position.lerp(defaultPos, 2.0 * delta);
+      controlsRef.current.target.lerp(defaultTarget, 4.0 * delta);
+      camera.position.lerp(defaultPos, 4.0 * delta);
       
-      if (controlsRef.current.target.distanceTo(defaultTarget) < 0.1 && camera.position.distanceTo(defaultPos) < 1.0) {
+      // Use much larger thresholds so it doesn't get stuck due to floating point errors over huge distances
+      if (controlsRef.current.target.distanceTo(defaultTarget) < 1.0 && camera.position.distanceTo(defaultPos) < 2.0) {
+        controlsRef.current.target.copy(defaultTarget);
+        camera.position.copy(defaultPos);
         isTransitioning.current = false;
       }
     }
@@ -152,6 +191,7 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
   return (
     <OrbitControls 
       ref={controlsRef}
+      enableDamping={false}
       enablePan={false}
       enableZoom={true}
       enableRotate={true}
@@ -371,7 +411,9 @@ function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: str
     "Saturn", "Mimas", "Enceladus", "Tethys", "Dione", "Rhea", "Titan", "Iapetus",
     "Uranus", "Miranda", "Ariel", "Umbriel", "Titania", "Oberon",
     "Neptune", "Proteus", "Triton", "Nereid",
-    "Pluto", "Charon", "HalleysComet", "Comet67P"
+    "Pluto", "Charon", "HalleysComet", "Comet67P",
+    "Ceres", "Eris", "Haumea", "Makemake", "Sedna",
+    "Vesta", "Pallas", "Hygiea"
   ];
 
   return (
@@ -417,9 +459,8 @@ export function SolarSystemViewer({ url, onModelReady, realisticLighting, option
         <SpaceBackground onSelectBody={onSelectBody} />
         
         {url && <Model url={url} options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} onReady={onModelReady} />}
+        {url && <CameraTracker selectedBody={selectedBody} flightTrigger={flightTrigger} />}
       </Suspense>
-
-      <CameraTracker selectedBody={selectedBody} flightTrigger={flightTrigger} />
     </Canvas>
   )
 }
