@@ -73,7 +73,6 @@
   height: 48px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
 }
 
 /* Loader Styles */
@@ -83,7 +82,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #050508;
+  background-color: #000000;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -102,7 +101,6 @@
   max-height: 80px;
   object-fit: contain;
   margin-bottom: 40px;
-  filter: drop-shadow(0 0 15px rgba(255,255,255,0.2));
   animation: pulseText 2s infinite;
 }
 
@@ -163,12 +161,13 @@
 /* Settings Panel */
 .settings-panel {
   position: absolute;
-  bottom: 120px; /* Above the speed control container */
-  left: 40px;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 20px;
+  background: rgba(20, 20, 30, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   padding: 24px;
   border-radius: 15px;
   z-index: 30;
@@ -177,9 +176,11 @@
   gap: 16px;
   color: var(--text-light);
   pointer-events: auto;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
   animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transform-origin: bottom left;
+  min-width: 260px;
+  white-space: nowrap;
 }
 
 @keyframes slideUp {
@@ -699,11 +700,11 @@
   }
   
   .settings-panel {
-    bottom: 90px;
-    left: 20px;
-    right: 20px;
+    bottom: 100%;
+    left: 0;
+    margin-bottom: 15px;
     padding: 15px;
-    transform-origin: bottom center;
+    transform-origin: bottom left;
   }
   
   .bottom-dashboard {

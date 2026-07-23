@@ -9,7 +9,7 @@ interface OrbitData {
   vertices: [number, number, number][];
 }
 
-export function OrbitLines({ visible }: { visible: boolean }) {
+export function OrbitLines({ visible, showComets = true }: { visible: boolean, showComets?: boolean }) {
   const [orbits, setOrbits] = useState<OrbitData[]>([]);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function OrbitLines({ visible }: { visible: boolean }) {
 
   return (
     <group>
-      {orbits.map((orbit) => (
+      {orbits.filter(o => showComets || o.type !== 'comet').map((orbit) => (
         <OrbitLine key={orbit.name} orbit={orbit} />
       ))}
     </group>

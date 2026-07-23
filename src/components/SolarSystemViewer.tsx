@@ -104,6 +104,12 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
           let safeDist = BODY_RADII[selectedBody] ? Math.max(BODY_RADII[selectedBody] * 4.0, 0.05) : 10.0;
           if (selectedBody === 'Sun') safeDist = 45.0;
           
+          // Dynamically adjust distance based on screen aspect ratio
+          // Base framing is optimized for 16:9 (1.77 aspect ratio)
+          const aspect = size.width / size.height;
+          const fovAdjustment = Math.min(Math.max(1.77 / aspect, 0.6), 4.0);
+          safeDist *= fovAdjustment;
+          
           const idealOffset = new THREE.Vector3(0, safeDist/3, safeDist);
           const currentOffset = camera.position.clone().sub(controlsRef.current.target);
           
@@ -347,7 +353,7 @@ function Model({ url, options, selectedBody, onSelectBody }: { url: string, opti
   return (
     <group>
       <primitive object={scene} />
-      <OrbitLines visible={options.showOrbits} />
+      <OrbitLines visible={options.showOrbits} showComets={options.showComets} />
       <CometTail scene={scene as THREE.Group} cometName="HalleysComet" options={options} />
       <CometTail scene={scene as THREE.Group} cometName="Comet67P" options={options} />
       
@@ -417,7 +423,7 @@ function CometTail({ scene, cometName, options }: { scene: THREE.Group, cometNam
   return (
     <>
       <group ref={targetRef} />
-      {options.showComets && canRender && (
+      {options.showComets && options.showOrbits && canRender && (
         <Trail
           width={1.5}
           length={maxFrames} 

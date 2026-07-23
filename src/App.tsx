@@ -127,16 +127,48 @@ function App() {
 
   const renderDashboardControls = () => (
     <div className="speed-control-container">
-      <button 
-        className={`settings-toggle-btn ${showSettings ? 'active' : ''}`}
-        onClick={() => setShowSettings(!showSettings)}
-        title="Toggle Visibility"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-      </button>
+      <div style={{ position: 'relative' }}>
+        <button 
+          className={`settings-toggle-btn ${showSettings ? 'active' : ''}`}
+          onClick={() => setShowSettings(!showSettings)}
+          title="Toggle Visibility"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+
+        {showSettings && (
+          <div className="settings-panel">
+            <h3>Visibility</h3>
+            <label>
+              <input type="checkbox" checked={options.showOrbits} onChange={(e) => setOptions({...options, showOrbits: e.target.checked})} />
+              Orbit Paths
+            </label>
+            <label>
+              <input type="checkbox" checked={options.showMoons} onChange={(e) => setOptions({...options, showMoons: e.target.checked})} />
+              Moons
+            </label>
+            <label>
+              <input type="checkbox" checked={options.showAsteroids} onChange={(e) => setOptions({...options, showAsteroids: e.target.checked})} />
+              Asteroids & Trojans
+            </label>
+            <label>
+              <input type="checkbox" checked={options.showAtmospheres} onChange={(e) => setOptions({...options, showAtmospheres: e.target.checked})} />
+              Atmospheres & Clouds
+            </label>
+            <label>
+              <input type="checkbox" checked={options.showRings} onChange={(e) => setOptions({...options, showRings: e.target.checked})} />
+              Planetary Rings
+            </label>
+            <label>
+              <input type="checkbox" checked={options.showComets} onChange={(e) => setOptions({...options, showComets: e.target.checked})} />
+              Comets & Tails
+            </label>
+          </div>
+        )}
+      </div>
 
       <button 
         className={`settings-toggle-btn ${realisticLighting ? 'active' : ''}`}
@@ -267,35 +299,7 @@ function App() {
           </div>
         </div>
 
-        {showSettings && (
-          <div className="settings-panel">
-            <h3>Visibility</h3>
-            <label>
-              <input type="checkbox" checked={options.showOrbits} onChange={(e) => setOptions({...options, showOrbits: e.target.checked})} />
-              Orbit Paths
-            </label>
-            <label>
-              <input type="checkbox" checked={options.showMoons} onChange={(e) => setOptions({...options, showMoons: e.target.checked})} />
-              Moons
-            </label>
-            <label>
-              <input type="checkbox" checked={options.showAsteroids} onChange={(e) => setOptions({...options, showAsteroids: e.target.checked})} />
-              Asteroids & Trojans
-            </label>
-            <label>
-              <input type="checkbox" checked={options.showAtmospheres} onChange={(e) => setOptions({...options, showAtmospheres: e.target.checked})} />
-              Atmospheres & Clouds
-            </label>
-            <label>
-              <input type="checkbox" checked={options.showRings} onChange={(e) => setOptions({...options, showRings: e.target.checked})} />
-              Planetary Rings
-            </label>
-            <label>
-              <input type="checkbox" checked={options.showComets} onChange={(e) => setOptions({...options, showComets: e.target.checked})} />
-              Comets & Tails
-            </label>
-          </div>
-        )}
+
 
         {!selectedBody && (
           <div className="bottom-dashboard full-dashboard">
