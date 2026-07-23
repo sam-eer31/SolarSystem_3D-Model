@@ -92,10 +92,9 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   }, []); // Empty dependency array ensures it mounts only once
 
   let displayString = `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
-  let hasDots = false;
-  
+  let isParsingOrReady = false;
   if (displayProgress >= 100) {
-    hasDots = true;
+    isParsingOrReady = true;
     if (!modelReady) {
       displayString = "PARSING SYSTEM";
     } else {
@@ -112,8 +111,8 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
           style={{ width: `${displayProgress}%` }} 
         />
       </div>
-      <div className="progress-text">
-        {displayString}{hasDots && <span className="animated-dots"></span>}
+      <div className={`progress-text ${isParsingOrReady ? 'loading-dots' : ''}`}>
+        {displayString}
       </div>
     </div>
   )
