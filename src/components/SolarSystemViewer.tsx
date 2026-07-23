@@ -29,7 +29,7 @@ const globalPointerState = {
   y: 0
 };
 
-function SpaceBackground({ onSelectBody }: { onSelectBody: (body: string | null) => void }) {
+function SpaceBackground() {
   const texture = useTexture('/8k_stars_milky_way.jpg')
   return (
     <mesh 
@@ -452,7 +452,7 @@ export function SolarSystemViewer({ url, onModelReady, realisticLighting, option
       )}
       
       <Suspense fallback={null}>
-        <SpaceBackground onSelectBody={onSelectBody} />
+        <SpaceBackground />
         
         {url && <Model url={url} options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} onReady={onModelReady} />}
         {url && <CameraTracker selectedBody={selectedBody} flightTrigger={flightTrigger} />}
