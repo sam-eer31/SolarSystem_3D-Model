@@ -333,7 +333,7 @@ function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: str
         if ((node as any).material) {
           const mat = (node as any).material;
           mat.transparent = true;
-          mat.opacity = 0.15;
+          mat.opacity = 0.05;
           mat.depthWrite = false;
           mat.color.setHex(0xffffff);
         }
