@@ -163,10 +163,10 @@
   bottom: 100%;
   left: 0;
   margin-bottom: 20px;
-  background: rgba(20, 20, 30, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(20, 20, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   padding: 24px;
   border-radius: 15px;
   z-index: 30;
@@ -175,7 +175,7 @@
   gap: 16px;
   color: var(--text-light);
   pointer-events: auto;
-  box-shadow: 0 4px 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transform-origin: bottom left;
   min-width: 260px;
