@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 
 export const globalModelCache = {
-  url: '/solar_system_realistic.glb?v=6'
+  url: '/solar_system_realistic.glb?v=7'
 };
 
 // Track preloading globally so React StrictMode or re-renders don't restart it
