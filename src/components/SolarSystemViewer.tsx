@@ -2,7 +2,6 @@ import { Suspense, useEffect, useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF, useAnimations, Trail, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
-import { OrbitLines } from './OrbitLines'
 
 export type ViewerOptions = {
   showOrbits: boolean;
@@ -326,7 +325,18 @@ function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: str
     
     scene.traverse((node) => {
       if (node.name.includes('OrbitPath')) {
-        node.visible = false;
+        if (node.name.includes('Comet')) {
+          node.visible = options.showOrbits && options.showComets;
+        } else {
+          node.visible = options.showOrbits;
+        }
+        if ((node as any).material) {
+          const mat = (node as any).material;
+          mat.transparent = true;
+          mat.opacity = 0.15;
+          mat.depthWrite = false;
+          mat.color.setHex(0xffffff);
+        }
       }
       if (node.name.includes('Atmosphere') || node.name.includes('Clouds')) {
         if (node.name === 'TitanAtmosphere') {
@@ -362,7 +372,6 @@ function Model({ url, options, selectedBody, onSelectBody, onReady }: { url: str
   return (
     <group>
       <primitive object={scene} />
-      <OrbitLines visible={options.showOrbits} showComets={options.showComets} />
       <CometTail scene={scene as THREE.Group} cometName="HalleysComet" options={options} />
       <CometTail scene={scene as THREE.Group} cometName="Comet67P" options={options} />
       
