@@ -173,21 +173,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.loading-dots::after {
-  content: '...';
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: bottom;
-  animation: ellipsis steps(4, end) 1.5s infinite;
-  width: 0px;
-}
-
-@keyframes ellipsis {
-  to {
-    width: 1.25em;
-  }
-}
-
 @keyframes pulseText {
   0%, 100% { opacity: 0.7; text-shadow: 0 0 10px rgba(255, 255, 255, 0); }
   50% { opacity: 1; text-shadow: 0 0 20px rgba(255, 255, 255, 0.4); }

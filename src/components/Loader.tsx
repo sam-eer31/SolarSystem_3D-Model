@@ -15,6 +15,7 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   const onLoadedRef = useRef(onLoaded);
   const onDownloadCompleteRef = useRef(onDownloadComplete);
   const [isDone, setIsDone] = useState(false);
+  const [dots, setDots] = useState('');
 
   useEffect(() => {
     onLoadedRef.current = onLoaded;
@@ -23,6 +24,13 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   useEffect(() => {
     onDownloadCompleteRef.current = onDownloadComplete;
   }, [onDownloadComplete]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots(d => d.length >= 3 ? '' : d + '.');
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle final fade out when BOTH visual progress is 100 AND model is fully parsed/ready
   useEffect(() => {
@@ -92,11 +100,10 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   }, []); // Empty dependency array ensures it mounts only once
 
   let displayString = `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
-  let isParsingOrReady = false;
   if (displayProgress >= 100) {
-    isParsingOrReady = true;
     if (!modelReady) {
-      displayString = "PARSING SYSTEM";
+      // Append the fixed width dots to prevent layout jumping
+      displayString = `PARSING SYSTEM${dots}`;
     } else {
       displayString = "SYSTEM READY";
     }
@@ -111,7 +118,7 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
           style={{ width: `${displayProgress}%` }} 
         />
       </div>
-      <div className={`progress-text ${isParsingOrReady ? 'loading-dots' : ''}`}>
+      <div className="progress-text" style={{ minWidth: '220px', textAlign: 'center' }}>
         {displayString}
       </div>
     </div>
