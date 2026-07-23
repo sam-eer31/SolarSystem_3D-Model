@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -31,7 +31,7 @@ export function OrbitLines({ visible }: { visible: boolean }) {
 }
 
 function OrbitLine({ orbit }: { orbit: OrbitData }) {
-  const ref = useRef<THREE.Line>(null);
+  const ref = useRef<any>(null);
   
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
