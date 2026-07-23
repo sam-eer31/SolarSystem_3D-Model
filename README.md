@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/logo.png" alt="PlanetZero Logo" width="200" />
-  
-  # PlanetZero
+
+  <br />
   
   **An interactive, highly realistic 3D Solar System experience.**
 
@@ -9,7 +9,6 @@
   [![3D Model](https://img.shields.io/badge/Download-3D_Model-4a90e2?style=for-the-badge&logo=threedotjs)](https://github.com/sam-eer31/SolarSystem_3D-Model/blob/main/public/solar_system_realistic.glb)
 </div>
 
-<br />
 
 ## 🪐 About PlanetZero
 
@@ -20,7 +19,7 @@ Built with React and Three.js, PlanetZero uses real orbit data to visualize our 
 ## ✨ Features
 
 - **Interactive 3D Environment**: Orbit, pan, and zoom around the solar system.
-- **High-Fidelity Models**: Features a massive ~100MB highly detailed GLB model of the solar system.
+- **High-Fidelity Models**: Features a massive highly detailed GLB model of the solar system.
 - **Responsive UI**: A sleek, dark-themed, glassmorphic interface that looks amazing on any device.
 - **Accurate Scales (Optional)**: Dynamic toggles to switch between realistic and exaggerated planetary scales for better viewing.
 - **Planet Tracking**: Focus on individual planets to explore them closely.
@@ -33,7 +32,7 @@ Experience PlanetZero right now: **[https://planetzero.vercel.app/](https://plan
 
 The massive, highly realistic 3D model used in this project is freely available for download. It is tracked using Git LFS due to its size.
 
-👉 **[Download the `solar_system_realistic.glb` model (~100MB)](https://github.com/sam-eer31/SolarSystem_3D-Model/raw/main/public/solar_system_realistic.glb)**
+👉 **[Download the `solar_system_realistic.glb` model](https://github.com/sam-eer31/SolarSystem_3D-Model/raw/main/public/solar_system_realistic.glb)**
 
 > **Note**: If you are cloning this repository, make sure you have [Git LFS](https://git-lfs.github.com/) installed so the model downloads correctly!
 
@@ -51,7 +50,7 @@ To run PlanetZero on your local machine:
 1. **Clone the repository** (make sure Git LFS is installed):
    ```bash
    git clone https://github.com/sam-eer31/SolarSystem_3D-Model.git
-   cd SolarSystem_3D-Model/webapp
+   cd SolarSystem_3D-Model
    ```
 
 2. **Install dependencies**:
