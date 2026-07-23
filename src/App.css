@@ -142,7 +142,7 @@
   overflow: hidden;
 }
 
-.progress-bar::after {
+.progress-bar-container::after {
   content: '';
   position: absolute;
   top: 0;
@@ -152,10 +152,11 @@
   background: linear-gradient(
     90deg,
     rgba(255,255,255,0) 0%,
-    rgba(255,255,255,0.6) 50%,
+    rgba(255,255,255,0.4) 50%,
     rgba(255,255,255,0) 100%
   );
   animation: glassShimmer 1.5s infinite linear;
+  pointer-events: none;
 }
 
 @keyframes glassShimmer {
