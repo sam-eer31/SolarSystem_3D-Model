@@ -119,7 +119,11 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
           camera.position.copy(controlsRef.current.target).add(currentOffset);
           
           // Wait for BOTH target and offset to arrive before locking
-          if (controlsRef.current.target.distanceTo(targetVec) < 0.1 && currentOffset.distanceTo(idealOffset) < 1.0) {
+          // Use dynamic thresholds so the camera doesn't abruptly stop transitioning on tiny moons
+          const targetThreshold = Math.max(safeDist * 0.005, 0.005);
+          const offsetThreshold = Math.max(safeDist * 0.01, 0.01);
+          
+          if (controlsRef.current.target.distanceTo(targetVec) < targetThreshold && currentOffset.distanceTo(idealOffset) < offsetThreshold) {
             isTransitioning.current = false;
           }
         } else {
