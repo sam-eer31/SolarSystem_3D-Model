@@ -726,8 +726,8 @@
     transform-origin: bottom left;
   }
   
-  .bottom-dashboard {
-    padding: 10px 20px 15px;
+  .bottom-dashboard, .bottom-dashboard.full-dashboard {
+    padding: 10px 20px 10px;
     gap: 10px;
     box-sizing: border-box;
   }
