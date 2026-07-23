@@ -41,10 +41,6 @@ function SpaceBackground({ onSelectBody }: { onSelectBody: (body: string | null)
       }}
       onPointerUp={(e) => {
         e.stopPropagation();
-        const dist = Math.hypot(e.clientX - globalPointerState.x, e.clientY - globalPointerState.y);
-        if (dist < 10) {
-          onSelectBody(globalPointerState.body);
-        }
         globalPointerState.body = null;
       }}
     >
