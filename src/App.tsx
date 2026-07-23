@@ -138,6 +138,14 @@ function App() {
     setHasStarted(true);
   };
 
+  const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen().catch(() => {});
+    } else if ((document as any).webkitExitFullscreen) {
+      (document as any).webkitExitFullscreen();
+    }
+  };
+
   const handleSelectBody = (body: string | null) => {
     setSelectedBody(body)
     if (body) setFlightTrigger(f => f + 1)
@@ -275,6 +283,13 @@ function App() {
             <img src="/logo.png" alt="PlanetZero" className="main-logo" />
           </div>
           <div className="header-actions">
+            {isMobile && hasStarted && (
+              <button className="exit-fullscreen-btn" onClick={exitFullscreen} title="Exit Fullscreen">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"></path>
+                </svg>
+              </button>
+            )}
             {selectedBody && (
               <button className="reset-view-btn" onClick={() => setSelectedBody(null)}>
                 RESET VIEW
