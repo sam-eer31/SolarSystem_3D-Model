@@ -450,7 +450,7 @@ function CometTail({ scene, cometName, options }: { scene: THREE.Group, cometNam
   )
 }
 
-export function SolarSystemViewer({ realisticLighting, options, selectedBody, flightTrigger, onSelectBody }: ViewerProps) {
+export function SolarSystemViewer({ url, onModelReady, realisticLighting, options, selectedBody, flightTrigger, onSelectBody }: ViewerProps) {
   return (
     <Canvas 
       camera={{ position: [0, 40, 150], fov: 45, far: 100000 }}
