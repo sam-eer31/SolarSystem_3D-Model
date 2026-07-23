@@ -15,7 +15,17 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   const onLoadedRef = useRef(onLoaded);
   const onDownloadCompleteRef = useRef(onDownloadComplete);
   const [isDone, setIsDone] = useState(false);
-  const [dots, setDots] = useState('');
+  const [dots, setDots] = useState("");
+
+  // Cycle dots animation
+  useEffect(() => {
+    if (displayProgress >= 100 && !modelReady && !isDone) {
+      const interval = setInterval(() => {
+        setDots(prev => prev.length >= 3 ? "" : prev + ".");
+      }, 400);
+      return () => clearInterval(interval);
+    }
+  }, [displayProgress, modelReady, isDone]);
 
   useEffect(() => {
     onLoadedRef.current = onLoaded;
@@ -24,13 +34,6 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   useEffect(() => {
     onDownloadCompleteRef.current = onDownloadComplete;
   }, [onDownloadComplete]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setDots(d => d.length >= 3 ? '' : d + '.');
-    }, 400);
-    return () => clearInterval(interval);
-  }, []);
 
   // Handle final fade out when BOTH visual progress is 100 AND model is fully parsed/ready
   useEffect(() => {
@@ -102,10 +105,9 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
   let displayString = `${Math.min(100, displayProgress).toFixed(0)}% SYNCHRONIZED`;
   if (displayProgress >= 100) {
     if (!modelReady) {
-      // Append the fixed width dots to prevent layout jumping
       displayString = `PARSING SYSTEM${dots}`;
     } else {
-      displayString = "SYSTEM READY";
+      displayString = "SYSTEM READY...";
     }
   }
 
@@ -118,7 +120,7 @@ export function Loader({ onDownloadComplete, modelReady, onLoaded }: { onDownloa
           style={{ width: `${displayProgress}%` }} 
         />
       </div>
-      <div className="progress-text" style={{ minWidth: '220px', textAlign: 'center' }}>
+      <div className="progress-text">
         {displayString}
       </div>
     </div>
