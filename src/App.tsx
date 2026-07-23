@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SolarSystemViewer, type ViewerOptions } from './components/SolarSystemViewer'
 import { getBodyData } from './data/bodyData'
 import { Loader } from './components/Loader'
@@ -100,6 +100,32 @@ function App() {
     checkState();
     window.addEventListener('resize', checkState);
     return () => window.removeEventListener('resize', checkState);
+  }, []);
+
+  const hasEnteredFullscreenRef = useRef(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFullscreen = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
+      
+      if (isFullscreen) {
+        hasEnteredFullscreenRef.current = true;
+      } else {
+        // If we exited fullscreen AND we had successfully entered it before
+        if (hasEnteredFullscreenRef.current) {
+          setHasStarted(false); // Force them to see the EXPAND button again
+          hasEnteredFullscreenRef.current = false;
+        }
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
   }, []);
 
   const requestFullscreen = () => {
