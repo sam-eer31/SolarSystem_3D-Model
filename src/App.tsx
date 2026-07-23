@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { SolarSystemViewer, type ViewerOptions } from './components/SolarSystemViewer'
 import { getBodyData } from './data/bodyData'
 import { Loader } from './components/Loader'
@@ -16,12 +16,99 @@ const TIME_PRESETS = [
   { label: "1 SEC = 1 YEAR", speed: 60.0 },
 ]
 
+const JUMP_CATEGORIES = [
+  { label: "Star", items: ["Sun"] },
+  { label: "Planets", items: ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"] },
+  { label: "Dwarf Planets", items: ["Pluto", "Ceres", "Eris", "Haumea", "Makemake"] },
+  { label: "Moons", items: ["Moon", "Io", "Europa", "Ganymede", "Callisto", "Titan", "Enceladus", "Triton"] },
+  { label: "Comets & Asteroids", items: ["HalleysComet", "Comet67P", "Vesta", "Pallas", "Hygiea"] }
+];
+
+function JumpMenu({ onSelect, currentBody }: { onSelect: (body: string) => void, currentBody: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={`jump-menu-container ${isOpen ? 'open' : ''}`}>
+      <button className="jump-menu-btn" onClick={() => setIsOpen(!isOpen)}>
+        <span>🚀 Jump to Destination...</span>
+        <span className={`jump-arrow ${isOpen ? 'up' : 'down'}`}>▼</span>
+      </button>
+      
+      {isOpen && (
+        <div className="jump-menu-dropdown">
+          {JUMP_CATEGORIES.map((cat) => (
+            <div key={cat.label} className="jump-menu-group">
+              <div className="jump-menu-header">{cat.label}</div>
+              <div className="jump-menu-items">
+                {cat.items.map(item => {
+                  const data = getBodyData(item);
+                  return (
+                    <button 
+                      key={item} 
+                      className={`jump-menu-item ${item === currentBody ? 'active' : ''}`}
+                      onClick={() => {
+                        onSelect(item);
+                        setIsOpen(false);
+                      }}
+                    >
+                      {data?.name || item}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function App() {
   const [realisticLighting, setRealisticLighting] = useState(false)
-  const [speedIndex, setSpeedIndex] = useState(5) // Default to 1 MIN = 1 YEAR
+  const [speedIndex, setSpeedIndex] = useState(4) // Default to 1 SEC = 1 DAY
   const [showSettings, setShowSettings] = useState(false)
   const [selectedBody, setSelectedBody] = useState<string | null>(null)
   const [flightTrigger, setFlightTrigger] = useState(0)
+  
+  const [isMobile, setIsMobile] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const checkState = () => {
+      // Professional Mobile Detection:
+      // 1. Strict regex for mobile operating systems (ignores generic touch-screen PCs)
+      const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      // 2. Feature detection: device primarily uses touch (coarse) and lacks a mouse (hover: none)
+      const isTouchOnly = window.matchMedia("(pointer: coarse) and (hover: none)").matches;
+      
+      // 3. Screen width constraint to prevent tablets from forcing portrait
+      const isSmallScreen = window.innerWidth <= 1024;
+
+      const mobile = (isMobileUA || isTouchOnly) && isSmallScreen;
+      const portrait = window.innerHeight > window.innerWidth;
+      
+      setIsMobile(mobile);
+      setIsPortrait(portrait);
+    };
+
+    checkState();
+    window.addEventListener('resize', checkState);
+    return () => window.removeEventListener('resize', checkState);
+  }, []);
+
+  const requestFullscreen = () => {
+    const el = document.documentElement as any;
+    if (el.requestFullscreen) {
+      el.requestFullscreen().catch(() => {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+    setHasStarted(true);
+  };
 
   const handleSelectBody = (body: string | null) => {
     setSelectedBody(body)
@@ -35,17 +122,93 @@ function App() {
     showAtmospheres: true,
     showRings: true,
     showComets: true,
-    animationSpeed: 1.0,
+    animationSpeed: TIME_PRESETS[4].speed,
   })
+
+  const renderDashboardControls = () => (
+    <div className="speed-control-container">
+      <button 
+        className={`settings-toggle-btn ${showSettings ? 'active' : ''}`}
+        onClick={() => setShowSettings(!showSettings)}
+        title="Toggle Visibility"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
+
+      <button 
+        className={`settings-toggle-btn ${realisticLighting ? 'active' : ''}`}
+        onClick={() => setRealisticLighting(!realisticLighting)}
+        title={realisticLighting ? "Switch to Enhanced Lighting" : "Switch to Realistic Lighting"}
+      >
+        {realisticLighting ? (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path>
+            <path d="M9 18h6"></path>
+            <path d="M10 22h4"></path>
+          </svg>
+        ) : (
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"></path>
+            <path d="M9 18h6"></path>
+            <path d="M10 22h4"></path>
+            <line x1="12" y1="2" x2="12" y2="4"></line>
+            <line x1="4.22" y1="5.22" x2="5.64" y2="6.64"></line>
+            <line x1="19.78" y1="5.22" x2="18.36" y2="6.64"></line>
+          </svg>
+        )}
+      </button>
+      
+      <div className="speed-slider-wrapper">
+        <label>{TIME_PRESETS[speedIndex].label}</label>
+        <input 
+          type="range" 
+          min="0" 
+          max={TIME_PRESETS.length - 1} 
+          step="1" 
+          value={speedIndex} 
+          onChange={(e) => {
+            const idx = parseInt(e.target.value);
+            setSpeedIndex(idx);
+            setOptions({...options, animationSpeed: TIME_PRESETS[idx].speed});
+          }}
+        />
+      </div>
+    </div>
+  );
 
   return (
     <div className="app-container">
-      <Loader />
+      <Loader onLoaded={() => setIsLoaded(true)} />
+      
+      {isLoaded && isMobile && isPortrait && (
+        <div className="orientation-warning">
+          <div className="orientation-content">
+            <div className="device-icon"></div>
+            <h2>Rotate Your Device</h2>
+            <p>For the best experience, please tilt your device to landscape mode.</p>
+          </div>
+        </div>
+      )}
+
+      {isLoaded && isMobile && !isPortrait && !hasStarted && (
+        <div className="orientation-warning">
+          <div className="orientation-content">
+            <h2>Ready to Explore</h2>
+            <p>Enter fullscreen mode for the best immersive experience.</p>
+            <button className="start-btn" onClick={requestFullscreen}>
+              ENTER FULLSCREEN
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="ui-layer">
         <header className="header">
           <div className="logo-container">
-            <img src="/logo.png" alt="Solar System" className="main-logo" />
+            <img src="/logo.png" alt="PlanetZero" className="main-logo" />
           </div>
           <div className="header-actions">
             {selectedBody && (
@@ -53,42 +216,56 @@ function App() {
                 RESET VIEW
               </button>
             )}
-            <button 
-              className={`toggle-btn ${realisticLighting ? 'realistic' : ''}`}
-              onClick={() => setRealisticLighting(!realisticLighting)}
-            >
-              <div className="toggle-indicator"></div>
-              {realisticLighting ? 'REALISTIC' : 'ENHANCED'}
-            </button>
           </div>
         </header>
 
-        {selectedBody && (
-          <div className="info-card">
-            <button className="close-btn" onClick={() => setSelectedBody(null)}>✕</button>
-            <h2>{getBodyData(selectedBody).name}</h2>
-            <span className="body-type">{getBodyData(selectedBody).type}</span>
-            <p className="body-desc">{getBodyData(selectedBody).description}</p>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-label">Mass</span>
-                <span className="stat-value">{getBodyData(selectedBody).mass}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Radius</span>
-                <span className="stat-value">{getBodyData(selectedBody).radius}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Temp</span>
-                <span className="stat-value">{getBodyData(selectedBody).temp}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Gravity</span>
-                <span className="stat-value">{getBodyData(selectedBody).gravity}</span>
+        <div className={`mid-part ${selectedBody ? 'split-view' : ''}`}>
+          {selectedBody && (
+            <div className="left-half">
+              <div className="info-card-wrapper">
+                <div className="info-card">
+                  <button className="close-btn" onClick={() => setSelectedBody(null)}>✕</button>
+                  <div className="info-card-scroll-area">
+                    <h2>{getBodyData(selectedBody).name}</h2>
+                    <span className="body-type">{getBodyData(selectedBody).type}</span>
+                    <p className="body-desc">{getBodyData(selectedBody).description}</p>
+                    <div className="stats-grid">
+                      <div className="stat-item">
+                        <span className="stat-label">Mass</span>
+                        <span className="stat-value">{getBodyData(selectedBody).mass}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Radius</span>
+                        <span className="stat-value">{getBodyData(selectedBody).radius}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Temp</span>
+                        <span className="stat-value">{getBodyData(selectedBody).temp}</span>
+                      </div>
+                      <div className="stat-item">
+                        <span className="stat-label">Gravity</span>
+                        <span className="stat-value">{getBodyData(selectedBody).gravity}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="jump-menu-wrapper">
+                      <JumpMenu onSelect={handleSelectBody} currentBody={selectedBody} />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          )}
+          
+          <div className="right-half">
+            <div className="planet-target-area"></div>
+            {selectedBody && (
+              <div className="bottom-dashboard inline-dashboard">
+                {renderDashboardControls()}
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {showSettings && (
           <div className="settings-panel">
@@ -120,37 +297,11 @@ function App() {
           </div>
         )}
 
-        <div className="bottom-dashboard">
-
-          <div className="speed-control-container">
-            <button 
-              className={`settings-toggle-btn ${showSettings ? 'active' : ''}`}
-              onClick={() => setShowSettings(!showSettings)}
-              title="Toggle Visibility"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </button>
-            
-            <div className="speed-slider-wrapper">
-              <label>{TIME_PRESETS[speedIndex].label}</label>
-              <input 
-                type="range" 
-                min="0" 
-                max={TIME_PRESETS.length - 1} 
-                step="1" 
-                value={speedIndex} 
-                onChange={(e) => {
-                  const idx = parseInt(e.target.value);
-                  setSpeedIndex(idx);
-                  setOptions({...options, animationSpeed: TIME_PRESETS[idx].speed});
-                }}
-              />
-            </div>
+        {!selectedBody && (
+          <div className="bottom-dashboard full-dashboard">
+            {renderDashboardControls()}
           </div>
-        </div>
+        )}
       </div>
 
 

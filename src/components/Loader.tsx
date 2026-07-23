@@ -1,28 +1,36 @@
 import { useProgress } from '@react-three/drei'
 import { useEffect, useState } from 'react'
 
-export function Loader() {
-  const { progress } = useProgress()
+export function Loader({ onLoaded }: { onLoaded?: () => void }) {
+  const { progress, total } = useProgress()
+  const [displayProgress, setDisplayProgress] = useState(0)
   const [hidden, setHidden] = useState(false)
 
   useEffect(() => {
-    if (progress === 100) {
-      const timer = setTimeout(() => setHidden(true), 800)
+    // Ensure progress only goes up, never drops down dynamically
+    setDisplayProgress(p => Math.max(p, progress))
+    
+    // Only finish if we have actually loaded items (total > 0)
+    if (progress === 100 && total > 0) {
+      const timer = setTimeout(() => {
+        setHidden(true)
+        if (onLoaded) onLoaded()
+      }, 800)
       return () => clearTimeout(timer)
     }
-  }, [progress])
+  }, [progress, total, onLoaded])
 
   return (
     <div className={`loader-container ${hidden ? 'hidden' : ''}`}>
-      <h2 className="loader-title">SOLAR<span>SYSTEM</span></h2>
+      <img src="/logo-main.png" alt="PlanetZero" className="loader-logo" />
       <div className="progress-bar-container">
         <div 
           className="progress-bar" 
-          style={{ width: `${progress}%` }} 
+          style={{ width: `${displayProgress}%` }} 
         />
       </div>
       <div className="progress-text">
-        {progress.toFixed(0)}% SYNCHRONIZED
+        {displayProgress.toFixed(0)}% SYNCHRONIZED
       </div>
     </div>
   )

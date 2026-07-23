@@ -2,6 +2,7 @@ import { Suspense, useEffect, useRef, useState, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, useGLTF, useAnimations, Trail, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
+import { OrbitLines } from './OrbitLines'
 
 export type ViewerOptions = {
   showOrbits: boolean;
@@ -65,12 +66,7 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
   useEffect(() => {
     
     if (selectedBody) {
-      const isMobile = window.innerWidth <= 768;
-      if (isMobile) {
-        camera.setViewOffset(size.width, size.height, 0, -size.height * 0.15, size.width, size.height);
-      } else {
-        camera.setViewOffset(size.width, size.height, -200, 0, size.width, size.height);
-      }
+      camera.setViewOffset(size.width, size.height, -(size.width * 0.25), 0, size.width, size.height);
     } else {
       camera.clearViewOffset();
     }
@@ -105,9 +101,8 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
           
           controlsRef.current.target.lerp(targetVec, 4.0 * delta);
           
-          let safeDist = BODY_RADII[selectedBody] ? Math.max(2.0, BODY_RADII[selectedBody] * 4.0) : 10.0;
+          let safeDist = BODY_RADII[selectedBody] ? Math.max(BODY_RADII[selectedBody] * 4.0, 0.05) : 10.0;
           if (selectedBody === 'Sun') safeDist = 45.0;
-          else if (selectedBody.includes('Comet')) safeDist = 2.0;
           
           const idealOffset = new THREE.Vector3(0, safeDist/3, safeDist);
           const currentOffset = camera.position.clone().sub(controlsRef.current.target);
@@ -148,7 +143,7 @@ function CameraTracker({ selectedBody, flightTrigger }: { selectedBody: string |
       enablePan={false}
       enableZoom={true}
       enableRotate={true}
-      minDistance={0.5} 
+      minDistance={0.01} 
       maxDistance={50000} 
       zoomSpeed={0.8}
       panSpeed={0.5}
@@ -196,7 +191,15 @@ const BODY_RADII: Record<string, number> = {
   "Pluto": 0.15,
   "Charon": 0.07,
   "HalleysComet": 0.08,
-  "Comet67P": 0.06
+  "Comet67P": 0.06,
+  "Ceres": 0.07,
+  "Vesta": 0.04,
+  "Pallas": 0.04,
+  "Hygiea": 0.03,
+  "Eris": 0.18,
+  "Haumea": 0.12,
+  "Makemake": 0.11,
+  "Sedna": 0.08
 };
 
 function InteractiveBody({ name, scene, hoveredBody, selectedBody, onSelect, onHover }: any) {
@@ -206,12 +209,26 @@ function InteractiveBody({ name, scene, hoveredBody, selectedBody, onSelect, onH
   const radius = BODY_RADII[name] || 1.0;
   const isHovered = hoveredBody === name;
   const isSelected = selectedBody === name;
+  const [camDist, setCamDist] = useState(10);
+
+  const hoverGap = Math.max(0.01, Math.min(radius * 0.05, 0.15));
+  const baseThickness = Math.max(0.01, Math.min(radius * 0.05, 0.1));
+  const distanceThickness = camDist * 0.004; 
+  const hoverThickness = Math.max(baseThickness, distanceThickness);
 
   useFrame(({ camera }) => {
     const node = scene.getObjectByName(name);
     if (node && ref.current) {
       node.getWorldPosition(targetVec);
       ref.current.position.copy(targetVec);
+      
+      if (isHovered && !isSelected) {
+        const dist = camera.position.distanceTo(targetVec);
+        if (Math.abs(dist - camDist) > dist * 0.05) {
+          setCamDist(dist);
+        }
+      }
+      
       if (ringRef.current) {
         ringRef.current.position.copy(targetVec);
         ringRef.current.quaternion.copy(camera.quaternion);
@@ -247,7 +264,7 @@ function InteractiveBody({ name, scene, hoveredBody, selectedBody, onSelect, onH
       
       {isHovered && !isSelected && (
         <mesh ref={ringRef}>
-          <ringGeometry args={[radius * 1.05, (radius * 1.05) + 0.1, 32]} />
+          <ringGeometry args={[radius + hoverGap, radius + hoverGap + hoverThickness, 64]} />
           <meshBasicMaterial color="#ffffff" transparent opacity={0.8} side={THREE.DoubleSide} depthTest={false} />
         </mesh>
       )}
@@ -294,7 +311,7 @@ function Model({ url, options, selectedBody, onSelectBody }: { url: string, opti
     
     scene.traverse((node) => {
       if (node.name.includes('OrbitPath')) {
-        node.visible = options.showOrbits;
+        node.visible = false;
       }
       if (node.name.includes('Atmosphere') || node.name.includes('Clouds')) {
         if (node.name === 'TitanAtmosphere') {
@@ -328,8 +345,9 @@ function Model({ url, options, selectedBody, onSelectBody }: { url: string, opti
   ];
 
   return (
-    <>
+    <group>
       <primitive object={scene} />
+      <OrbitLines visible={options.showOrbits} />
       <CometTail scene={scene as THREE.Group} cometName="HalleysComet" options={options} />
       <CometTail scene={scene as THREE.Group} cometName="Comet67P" options={options} />
       
@@ -344,7 +362,7 @@ function Model({ url, options, selectedBody, onSelectBody }: { url: string, opti
           onHover={setHoveredBody} 
         />
       ))}
-    </>
+    </group>
   )
 }
 
@@ -437,7 +455,7 @@ export function SolarSystemViewer({ realisticLighting, options, selectedBody, fl
       <Suspense fallback={null}>
         <SpaceBackground onSelectBody={onSelectBody} />
         
-        <Model url="/solar_system_realistic.glb" options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} />
+        <Model url="/solar_system_realistic.glb?v=6" options={options} selectedBody={selectedBody} onSelectBody={onSelectBody} />
       </Suspense>
 
       <CameraTracker selectedBody={selectedBody} flightTrigger={flightTrigger} />
@@ -446,4 +464,4 @@ export function SolarSystemViewer({ realisticLighting, options, selectedBody, fl
 }
 
 // Preload the model so R3F starts fetching immediately
-useGLTF.preload('/solar_system_realistic.glb')
+useGLTF.preload('/solar_system_realistic.glb?v=6')
